@@ -1,6 +1,6 @@
 # 컴파일러 설정
 CC = g++
-CFLAGS = -Wall -std=c++17 `pkg-config --cflags libavformat libavcodec libavutil libswscale`
+CFLAGS = -Wall -std=c++17 -g -O0 `pkg-config --cflags libavformat libavcodec libavutil libswscale`
 LDFLAGS = `pkg-config --libs libavformat libavcodec libavutil libswscale` -lcurl -lpugixml -pthread
 
 # 디렉토리 설정
