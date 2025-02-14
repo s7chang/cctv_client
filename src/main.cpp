@@ -1,6 +1,7 @@
 #include "config.h"
 #include "rtsp_client.h"
-#include "http_client.h"
+#include "onvif_client.h"
+#include "camera_truen.h"
 #include <thread>
 #include <chrono>
 
@@ -19,30 +20,48 @@ int main() {
         return 1;
     }
 
-	// 설정값을 실제 변수에 저장
-    std::string protocol        = config.get("CCTV.protocol");
-	std::string cctv_ip         = config.get("CCTV.cctv_ip");
-    int rtsp_port               = config.getInt("CCTV.rtsp_port");
-    int http_port               = config.getInt("CCTV.http_port");
-    std::string username        = config.get("ONVIF.username");
-    std::string password        = config.get("ONVIF.password");
-    int payload_type            = config.getInt("ONVIF.metadata_payload_type");
-    int reconnect_delay         = config.getInt("ONVIF.reconnect_delay");    
+    // 설정값을 실제 변수에 저장
+    std::string protocol = config.get("CCTV.protocol");
+    std::string cctv_ip = config.get("CCTV.cctv_ip");
+    int http_port = config.getInt("CCTV.http_port");
 
-    // AI 상태 확인 후 필요하면 활성화
-    if (!HTTPClient::checkAIStatus(ai_status_url)) {
-        std::cout << "AI is disabled. Enabling AI..." << std::endl;
-        HTTPClient::sendCommand(http_api_url, enable_ai_cmd);
+    std::string username = config.get("ONVIF.username");
+    std::string password = config.get("ONVIF.password");
+    int payload_type = config.getInt("ONVIF.metadata_payload_type");
+    int reconnect_delay = config.getInt("ONVIF.reconnect_delay");
+
+    // 🔹 1️⃣ 카메라 설정 확인 및 AI 기능 활성화
+    CameraTruen camera(cctv_ip, http_port, protocol);
+    
+    if (!camera.getObjectDetection()) {
+        std::cout << "[INFO] 객체 탐지가 비활성화되어 있습니다. 활성화합니다..." << std::endl;
+        camera.setObjectDetection(true);
     }
 
-    // RTSP 스트림 재연결 루프
+    if (!camera.getSmartShotStatus()) {
+        std::cout << "[INFO] 스마트 샷이 비활성화되어 있습니다. 활성화합니다..." << std::endl;
+        camera.enableSmartShot(true);
+    }
+
+    // 🔹 2️⃣ ONVIFClient를 사용하여 RTSP 메타데이터 스트림 URI 가져오기
+    ONVIFClient onvifClient(protocol, cctv_ip + ":" + std::to_string(http_port), username, password);
+    std::string rtsp_url = onvifClient.getMetadataStreamUri();
+
+    if (rtsp_url.empty()) {
+        std::cerr << "[ERROR] RTSP URI를 가져오지 못했습니다. 종료합니다." << std::endl;
+        return 1;
+    }
+
+    std::cout << "[INFO] ONVIF RTSP 메타데이터 스트림 URI: " << rtsp_url << std::endl;
+
+    // 🔹 3️⃣ RTSP 스트림 재연결 루프
     while (true) {
-        std::cout << "Connecting to RTSP stream..." << std::endl;
-        RTSPClient rtspClient(rtsp_url);
+        std::cout << "[INFO] RTSP 메타데이터 스트림 연결 시도 중..." << std::endl;
+        RTSPClient rtspClient(rtsp_url, payload_type);
         
         bool connected = rtspClient.startEventStream(handleMetadata);
         if (!connected) {
-            std::cout << "Connection lost. Retrying in " << reconnect_delay << " seconds..." << std::endl;
+            std::cout << "[WARNING] 연결이 끊어졌습니다. " << reconnect_delay << "초 후 다시 시도합니다..." << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(reconnect_delay));
         }
     }
