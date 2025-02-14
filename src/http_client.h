@@ -7,7 +7,10 @@
 
 class HttpClient {
 public:
-    static bool sendRequest(const std::string& protocol, const std::string& method, const std::string& url, std::string* response = nullptr);
+    static bool sendRequest(const std::string& protocol, const std::string& method, const std::string& url, std::string* response = nullptr) noexcept(false);
+
+    static std::string urlDecode(const std::string& encoded);
+    static std::string urlEncode(const std::string& value);
 };
 
 #endif // HTTP_CLIENT_H

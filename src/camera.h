@@ -14,12 +14,16 @@ protected:
     std::string addr;
 
     // 설정
-    virtual bool readConfig(const std::string& param, std::string& response) const = 0;
-    virtual bool writeConfig(const std::string& param, const std::string& value) const = 0;
+    virtual bool readConfig(const std::string& param, std::string& response) const noexcept(false) = 0;
+    virtual bool writeConfig(const std::string& param, const std::string& value) const noexcept(false) = 0;
 
-    bool readConfigBool(const std::string& param) const;
-    int readConfigInt(const std::string& param) const;
-    std::string readConfigString(const std::string& param) const;
+    bool readConfigBool(const std::string& param) const noexcept(false);
+    int readConfigInt(const std::string& param) const noexcept(false);
+    std::string readConfigString(const std::string& param) const noexcept(false);
+
+    inline void writeConfigBool(const std::string& param, bool value) const noexcept(false) { writeConfig(param, value ? "1" : "0"); }
+    inline void writeConfigInt(const std::string& param, int value) const noexcept(false) { writeConfig(param, std::to_string(value)); }
+    inline void writeConfigString(const std::string& param, const std::string& value) const noexcept(false) { writeConfig(param, value); }
 };
 
 #endif // CAMERA_H

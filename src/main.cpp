@@ -2,6 +2,7 @@
 #include "rtsp_client.h"
 #include "onvif_client.h"
 #include "camera_truen.h"
+#include "http_exception.h"
 #include <thread>
 #include <chrono>
 
@@ -32,15 +33,31 @@ int main() {
 
     // 🔹 1️⃣ 카메라 설정 확인 및 AI 기능 활성화
     CameraTruen camera(cctv_ip, http_port, protocol);
-    
-    if (!camera.getObjectDetection()) {
-        std::cout << "[INFO] 객체 탐지가 비활성화되어 있습니다. 활성화합니다..." << std::endl;
-        camera.setObjectDetection(true);
-    }
+ 
+    while (true) {
+        try {
+            bool detectionEnabled = camera.getObjectDetection();
 
-    if (!camera.getSmartShotStatus()) {
-        std::cout << "[INFO] 스마트 샷이 비활성화되어 있습니다. 활성화합니다..." << std::endl;
-        camera.enableSmartShot(true);
+            if (!detectionEnabled) {
+                std::cout << "[INFO] 객체 탐지가 비활성화되어 있습니다. 활성화 시도 중..." << std::endl;
+                camera.setObjectDetection(true);
+            }
+            
+            if (!camera.getSmartShotStatus()) {
+                std::cout << "[INFO] 스마트 샷이 비활성화되어 있습니다. 활성화 시도 중..." << std::endl;
+                camera.enableSmartShot(true);
+            }
+
+            break; // 성공하면 루프 탈출
+        } catch (const HttpException& e) {
+            std::cerr << "[WARNING] HTTP 예외 발생 (" << e.getHttpCode() << "): " << e.what() 
+                      << " - " << reconnect_delay << "초 후 다시 시도..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(reconnect_delay));
+
+        } catch (const std::exception& e) {
+            std::cerr << "[ERROR] 예기치 않은 예외 발생: " << e.what() << std::endl;
+            return 1; // 🔹 일반 예외 발생 시 프로그램 종료
+        }
     }
 
     // 🔹 2️⃣ ONVIFClient를 사용하여 RTSP 메타데이터 스트림 URI 가져오기

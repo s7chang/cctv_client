@@ -1,114 +1,119 @@
 #ifndef CAMERA_TRUEN_H
 #define CAMERA_TRUEN_H
 
+#include <list>
+#include <sstream>
+
 #include "camera.h"
+
+struct POINT {
+    int x;
+    int y;
+};
 
 class CameraTruen : public Camera {
 public:
     CameraTruen(const std::string& cameraIp, int port = 80, const std::string& protocol = "http") : Camera(cameraIp, port, protocol) {}
 
-    // [1] 객체 탐지 (Object Detection)
-    void setObjectDetection(bool enable) { writeConfig("AIX_OBJECT_DETECTION_ENABLE", enable ? "1" : "0"); }
+    // 객체 탐지 (Object Detection)
+    void setObjectDetection(bool enable) { writeConfigBool("AIX_OBJECT_DETECTION_ENABLE", enable); }
     bool getObjectDetection() { return readConfigBool("AIX_OBJECT_DETECTION_ENABLE"); }
-    
-    void setPersonDetection(bool enable) { writeConfig("AIX_PERSON_DETECTION_ENABLE", enable ? "1" : "0"); }
+
+    // 특정 객체 탐지
+    void setPersonDetection(bool enable) { writeConfigBool("AIX_PERSON_DETECTION_ENABLE", enable); }
     bool getPersonDetection() { return readConfigBool("AIX_PERSON_DETECTION_ENABLE"); }
     
-    void setBicycleDetection(bool enable) { writeConfig("AIX_BICYCLE_DETECTION_ENABLE", enable ? "1" : "0"); }
+    void setBicycleDetection(bool enable) { writeConfigBool("AIX_BICYCLE_DETECTION_ENABLE", enable); }
     bool getBicycleDetection() { return readConfigBool("AIX_BICYCLE_DETECTION_ENABLE"); }
     
-    void setCarDetection(bool enable) { writeConfig("AIX_CAR_DETECTION_ENABLE", enable ? "1" : "0"); }
+    void setCarDetection(bool enable) { writeConfigBool("AIX_CAR_DETECTION_ENABLE", enable); }
     bool getCarDetection() { return readConfigBool("AIX_CAR_DETECTION_ENABLE"); }
+
+    // 객체 디스플레이 방식 (0: off, 1: Bounding Box, 2: Blur)
+    void setPersonDisplayType(int type) { writeConfigInt("AIX_PERSON_DISPLAY_TYPE", type); }
+    int getPersonDisplayType() { return readConfigInt("AIX_PERSON_DISPLAY_TYPE"); }
     
+    void setBicycleDisplayType(int type) { writeConfigInt("AIX_BICYCLE_DISPLAY_TYPE", type); }
+    int getBicycleDisplayType() { return readConfigInt("AIX_BICYCLE_DISPLAY_TYPE"); }
     
+    void setCarDisplayType(int type) { writeConfigInt("AIX_CAR_DISPLAY_TYPE", type); }
+    int getCarDisplayType() { return readConfigInt("AIX_CAR_DISPLAY_TYPE"); }
 
-    // [2] 스마트 샷 (Smart Shot)
-    // 스마트 샷 전체 활성화/비활성화
-    void enableSmartShot(bool enable) { writeConfig("AIX_SMARTSHOT_ENABLE", enable ? "1" : "0"); }
-    bool getSmartShotStatus() { return readConfigBool("AIX_SMARTSHOT_ENABLE"); }
+    // 객체 탐지 민감도 (0: Ultra, 1: High, 2: Middle, 3: Low)
+    void setPersonSensitivity(int level) { writeConfigInt("AIX_PERSON_SENSITIVITY", level); }
+    int getPersonSensitivity() { return readConfigInt("AIX_PERSON_SENSITIVITY"); }
+    
+    void setBicycleSensitivity(int level) { writeConfigInt("AIX_BICYCLE_SENSITIVITY", level); }
+    int getBicycleSensitivity() { return readConfigInt("AIX_BICYCLE_SENSITIVITY"); }
+    
+    void setCarSensitivity(int level) { writeConfigInt("AIX_CAR_SENSITIVITY", level); }
+    int getCarSensitivity() { return readConfigInt("AIX_CAR_SENSITIVITY"); }
 
-    // 개별 객체별 스마트 샷 활성화
-    void enablePersonSmartShot(bool enable) { writeConfig("AIX_PERSON_SMARTOBJECT_ENABLE", enable ? "1" : "0"); }
-    void enableBicycleSmartShot(bool enable) { writeConfig("AIX_BICYCLE_SMARTOBJECT_ENABLE", enable ? "1" : "0"); }
-    void enableCarSmartShot(bool enable) { writeConfig("AIX_CAR_SMARTOBJECT_ENABLE", enable ? "1" : "0"); }
+    // 배제 영역 (regionIndex: 0 ~ 7)
+    void setExcludeRegionEnable(int regionIndex, bool enable) { writeConfigBool("AIX_EXCLUDE_REGION_ENABLE" + std::to_string(regionIndex), enable); }
+    bool getExcludeRegionEnable(int regionIndex) { return readConfigBool("AIX_EXCLUDE_REGION_ENABLE" + std::to_string(regionIndex)); }
 
-    bool getPersonSmartShotStatus() { return readConfigBool("AIX_PERSON_SMARTOBJECT_ENABLE"); }
-    bool getBicycleSmartShotStatus() { return readConfigBool("AIX_BICYCLE_SMARTOBJECT_ENABLE"); }
-    bool getCarSmartShotStatus() { return readConfigBool("AIX_CAR_SMARTOBJECT_ENABLE"); }
+    // 배제 영역 화면 표시
+    void setExcludeRegionDisplayEnable(int regionIndex, bool enable) { writeConfigBool("AIX_EXCLUDE_REGION_DISPLAY_ENABLE" + std::to_string(regionIndex), enable); }
+    bool getExcludeRegionDisplayEnable(int regionIndex) { return readConfigBool("AIX_EXCLUDE_REGION_DISPLAY_ENABLE" + std::to_string(regionIndex)); }
 
-    // 객체 속성 설정
-    std::string getPersonGender() { return readConfigString("AIX_PERSON_GENDER"); }
-    void setPersonGender(const std::string& gender) { writeConfig("AIX_PERSON_GENDER", gender); }
+    // 배제 영역 표시 (0: Region, 1: Spot)
+    void setExcludeRegionType(int regionIndex, int type) { writeConfigInt("AIX_EXCLUDE_REGION_TYPE" + std::to_string(regionIndex), type); }
+    int getExcludeRegionType(int regionIndex) { return readConfigInt("AIX_EXCLUDE_REGION_TYPE" + std::to_string(regionIndex)); }
 
-    std::string getPersonClothingTopColor() { return readConfigString("AIX_PERSON_TOP_COLOR"); }
-    void setPersonClothingTopColor(const std::string& color) { writeConfig("AIX_PERSON_TOP_COLOR", color); }
+    // 특정 객체 배제
+    void setExcludePersonEnable(int regionIndex, bool enable) { writeConfigBool("AIX_EXCLUDE_REGION_PERSON_ENABLE" + std::to_string(regionIndex), enable); }
+    bool getExcludePersonEnable(int regionIndex) { return readConfigBool("AIX_EXCLUDE_REGION_PERSON_ENABLE" + std::to_string(regionIndex)); }
+    
+    void setExcludeBicycleEnable(int regionIndex, bool enable) { writeConfigBool("AIX_EXCLUDE_REGION_BICYCLE_ENABLE" + std::to_string(regionIndex), enable); }
+    bool getExcludeBicycleEnable(int regionIndex) { return readConfigBool("AIX_EXCLUDE_REGION_BICYCLE_ENABLE" + std::to_string(regionIndex)); }
+    
+    void setExcludeCarEnable(int regionIndex, bool enable) { writeConfigBool("AIX_EXCLUDE_REGION_CAR_ENABLE" + std::to_string(regionIndex), enable); }
+    bool getExcludeCarEnable(int regionIndex) { return readConfigBool("AIX_EXCLUDE_REGION_CAR_ENABLE" + std::to_string(regionIndex)); }
+        
+    // 배제 영역 좌표 개수
+    void setExcludeRegionPositionCount(int positionCount) { writeConfigInt("AIX_EXCLUDE_REGION_CAPACITY", positionCount); }
+    int getExcludeRegionPositionCount() { return readConfigInt("AIX_EXCLUDE_REGION_CAPACITY"); }
+    
+    // 영역
+    void setExcludeRegionPosition(int regionIndex, const std::list<POINT>& points) {
+        std::string param;
+        for (auto pt : points) {
+            param += std::to_string(pt.x) + "," + std::to_string(pt.y) + ",";
+        }
+        param.pop_back();       // 마지막 , 제거. points가 0개라면 죽는다
+        writeConfigString("AIX_EXCLUDE_REGION_POSITION" + std::to_string(regionIndex), HttpClient::urlEncode(param));
+    }
+    std::list<POINT> getExcludeRegionPosition(int regionIndex) {
+        std::list<POINT> points;
+    
+        // URL 인코딩된 좌표 데이터를 읽어서 디코딩
+        std::string decodedPositions = HttpClient::urlDecode(readConfigString("AIX_EXCLUDE_REGION_POSITION" + std::to_string(regionIndex)));
+    
+        // ','를 기준으로 직접 문자열을 쪼개기
+        size_t start = 0, end;
+        POINT point;
+        int count = 0;
 
-    std::string getPersonClothingBottomColor() { return readConfigString("AIX_PERSON_BOTTOM_COLOR"); }
-    void setPersonClothingBottomColor(const std::string& color) { writeConfig("AIX_PERSON_BOTTOM_COLOR", color); }
+        while ((end = decodedPositions.find(',', start)) != std::string::npos) {
+            std::string token = decodedPositions.substr(start, end - start);
+            if (count % 2 == 0) {
+                point.x = std::stoi(token);
+            } else {
+                point.y = std::stoi(token);
+                points.push_back(point);
+            }
+            count++;
+            start = end + 1;
+        }
 
-    bool isWearingGlasses() { return readConfigBool("AIX_PERSON_ACCESSORY_GLASSES"); }
-    void setWearingGlasses(bool enable) { writeConfig("AIX_PERSON_ACCESSORY_GLASSES", enable ? "1" : "0"); }
-
-    bool isWearingMask() { return readConfigBool("AIX_PERSON_ACCESSORY_MASK"); }
-    void setWearingMask(bool enable) { writeConfig("AIX_PERSON_ACCESSORY_MASK", enable ? "1" : "0"); }
-
-    bool isWearingHat() { return readConfigBool("AIX_PERSON_ACCESSORY_HAT"); }
-    void setWearingHat(bool enable) { writeConfig("AIX_PERSON_ACCESSORY_HAT", enable ? "1" : "0"); }
-
-    bool isWearingHelmet() { return readConfigBool("AIX_PERSON_ACCESSORY_HELMET"); }
-    void setWearingHelmet(bool enable) { writeConfig("AIX_PERSON_ACCESSORY_HELMET", enable ? "1" : "0"); }
-
-    std::string getPersonBelongingType() { return readConfigString("AIX_PERSON_BELONGING_TYPE"); }
-    void setPersonBelongingType(const std::string& type) { writeConfig("AIX_PERSON_BELONGING_TYPE", type); }
-
-    // 자동차 속성 설정
-    std::string getCarType() { return readConfigString("AIX_CAR_TYPE"); }
-    void setCarType(const std::string& type) { writeConfig("AIX_CAR_TYPE", type); }
-
-    std::string getCarColor() { return readConfigString("AIX_CAR_COLOR"); }
-    void setCarColor(const std::string& color) { writeConfig("AIX_CAR_COLOR", color); }
-
-    // 자전거 속성 설정
-    std::string getBicycleType() { return readConfigString("AIX_BICYCLE_TYPE"); }
-    void setBicycleType(const std::string& type) { writeConfig("AIX_BICYCLE_TYPE", type); }
-
-    std::string getBicycleColor() { return readConfigString("AIX_BICYCLE_COLOR"); }
-    void setBicycleColor(const std::string& color) { writeConfig("AIX_BICYCLE_COLOR", color); }
-
-
-
-    // [3] ANPR (Automatic Number Plate Recognition)
-    void enableANPR(bool enable) { writeConfig("AIX_ANPR_ENABLE", enable ? "1" : "0"); }
-    bool getANPRStatus() { return readConfigBool("AIX_ANPR_ENABLE"); }
-
-    // [4] 행동 분석 (Behavior Analysis)
-    void enableBehaviorAnalysis(bool enable) { writeConfig("AIX_REGION_ENABLE0", enable ? "1" : "0"); }
-    bool getBehaviorAnalysisStatus() { return readConfigBool("AIX_REGION_ENABLE0"); }
-
-    // [5] Line Counting (라인 카운팅)
-    void enableLineCounting(bool enable) { writeConfig("AIX_REGION_ENABLE1", enable ? "1" : "0"); }
-    bool getLineCountingStatus() { return readConfigBool("AIX_REGION_ENABLE1"); }
-
-    // [6] Vehicle Speed (자동차 속도 감지)
-    void enableVehicleSpeed(bool enable) { writeConfig("AIX_VEHICLE_SPEED_ENABLE", enable ? "1" : "0"); }
-    bool getVehicleSpeedStatus() { return readConfigBool("AIX_VEHICLE_SPEED_ENABLE"); }
-
-    // [7] Tampering Detection (카메라 훼손 감지)
-    void enableTamperingDetection(bool enable) { writeConfig("AIX_TAMPERING_ENABLE", enable ? "1" : "0"); }
-    bool getTamperingDetectionStatus() { return readConfigBool("AIX_TAMPERING_ENABLE"); }
-
-    // [8] Crowd Counting (군집 카운팅)
-    void enableCrowdCounting(bool enable) { writeConfig("AIX_CROWD_COUNTING_ENABLE", enable ? "1" : "0"); }
-    bool getCrowdCountingStatus() { return readConfigBool("AIX_CROWD_COUNTING_ENABLE"); }
-
-    // [9] Auto Tracking (자동 추적)
-    void enableAutoTracking(bool enable) { writeConfig("AIX_AUTO_TRACKING_ENABLE", enable ? "1" : "0"); }
-    bool getAutoTrackingStatus() { return readConfigBool("AIX_AUTO_TRACKING_ENABLE"); }
+        return points;
+    }
     
 protected:
     // 설정
-    virtual bool readConfig(const std::string& param, std::string& response) const;
-    virtual bool writeConfig(const std::string& param, const std::string& value) const;
+    virtual bool readConfig(const std::string& param, std::string& response) const noexcept(false);
+    virtual bool writeConfig(const std::string& param, const std::string& value) const noexcept(false);
 };
 
 #endif // CAMERA_TRUEN_H
