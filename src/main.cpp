@@ -20,12 +20,14 @@ int main() {
     }
 
 	// 설정값을 실제 변수에 저장
+    std::string protocol        = config.get("CCTV.protocol");
 	std::string cctv_ip         = config.get("CCTV.cctv_ip");
-	std::string rtsp_url        = config.get("CCTV.rtsp_url");
-	std::string http_api_url    = config.get("CCTV.http_api_url");
-	int reconnect_delay         = config.getInt("RTSP.reconnect_delay");
-	std::string enable_ai_cmd   = config.get("HTTP_COMMANDS.enable_ai");
-    std::string ai_status_url   = http_api_url + "?action=readparam&" + config.get("HTTP_COMMANDS.check_ai_status");
+    int rtsp_port               = config.getInt("CCTV.rtsp_port");
+    int http_port               = config.getInt("CCTV.http_port");
+    std::string username        = config.get("ONVIF.username");
+    std::string password        = config.get("ONVIF.password");
+    int payload_type            = config.getInt("ONVIF.metadata_payload_type");
+    int reconnect_delay         = config.getInt("ONVIF.reconnect_delay");    
 
     // AI 상태 확인 후 필요하면 활성화
     if (!HTTPClient::checkAIStatus(ai_status_url)) {
@@ -38,7 +40,7 @@ int main() {
         std::cout << "Connecting to RTSP stream..." << std::endl;
         RTSPClient rtspClient(rtsp_url);
         
-        bool connected = rtspClient.startStream(handleMetadata);
+        bool connected = rtspClient.startEventStream(handleMetadata);
         if (!connected) {
             std::cout << "Connection lost. Retrying in " << reconnect_delay << " seconds..." << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(reconnect_delay));
