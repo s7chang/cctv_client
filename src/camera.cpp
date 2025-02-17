@@ -18,6 +18,11 @@ std::string to_string(E_Behavior behavior) {
     return behaviors[behavior];
 }
 
+std::string to_string(E_EventAction behavior) {
+    static const std::string actions[] = { "ALARM", "EMAIL", "FTP", "PRESET", "HTTPACTION", "EVENTOSD" };
+    return actions[behavior];
+}
+
 bool Camera::readConfigBool(const std::string& param) const {
     std::string response;
     if (!readConfig(param, response)) {

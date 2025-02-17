@@ -17,17 +17,23 @@ enum E_WeekDay {
 };
 std::string to_string(E_WeekDay weekDay);
 
-// Object
+// Object (X로 표기)
 enum E_Object {
     PERSON, BICYCLE, CAR, 
 };
 std::string to_string(E_Object objectType);
 
-// Behavior
+// Behavior (B로 표기)
 enum E_Behavior {
     APPEAR, STAY, DIRECTION, ENTER, EXIT, LOITERING, FALLDOWN, FIGHT,
 };
 std::string to_string(E_Behavior behavior);
+
+// EventAction (표기 생략)
+enum E_EventAction {
+    ALARM, EMAIL, FTP, PRESET, HTTPACTION, EVENTOSD,
+};
+std::string to_string(E_EventAction behavior);
 
 class Camera {
 public:
