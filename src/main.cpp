@@ -42,11 +42,8 @@ int main() {
                 std::cout << "[INFO] 객체 탐지가 비활성화되어 있습니다. 활성화 시도 중..." << std::endl;
                 camera.setObjectDetection(true);
             }
-            
-            if (!camera.getSmartShotStatus()) {
-                std::cout << "[INFO] 스마트 샷이 비활성화되어 있습니다. 활성화 시도 중..." << std::endl;
-                camera.enableSmartShot(true);
-            }
+
+            // 켜야 하는 기능들에 대한 체크 필요 (추후에 config.ini에 설정할 수도 있을 듯)
 
             break; // 성공하면 루프 탈출
         } catch (const HttpException& e) {
