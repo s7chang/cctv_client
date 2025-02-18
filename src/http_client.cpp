@@ -8,7 +8,7 @@
 #include "http_client.h"
 #include "http_exception.h"
 
-size_t callback(void* contents, size_t size, size_t nmemb, void* userp) {
+static size_t callback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t totalSize = size * nmemb;
     static_cast<std::string*>(userp)->append(static_cast<char*>(contents), totalSize);
     return totalSize;

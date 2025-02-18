@@ -59,6 +59,8 @@ int main() {
         }
     }
 
+    std::cout << std::endl << std::endl << std::endl;
+
     // 🔹 2️⃣ ONVIFClient를 사용하여 RTSP 메타데이터 스트림 URI 가져오기
     ONVIFClient onvifClient(protocol, cctv_ip + ":" + std::to_string(http_port), username, password);
     std::string rtsp_url = onvifClient.getMetadataStreamUri();
