@@ -5,7 +5,9 @@
 
 class CameraTruen : public Camera {
 public:
-    CameraTruen(const std::string& cameraIp, int port = 80, const std::string& protocol = "http") : Camera(cameraIp, port, protocol) {}
+    CameraTruen(const std::string& cameraIp, const std::string& username, const std::string& passwd, int port = 80, const std::string& protocol = "http")
+     : Camera(cameraIp, username, passwd, port, protocol) {
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // 4.1 객체 탐지

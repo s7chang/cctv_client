@@ -31,8 +31,10 @@ int main() {
     int payload_type = config.getInt("ONVIF.metadata_payload_type");
     int reconnect_delay = config.getInt("ONVIF.reconnect_delay");
 
+    curl_global_init(CURL_GLOBAL_ALL);
+
     // 🔹 1️⃣ 카메라 설정 확인 및 AI 기능 활성화
-    CameraTruen camera(cctv_ip, http_port, protocol);
+    CameraTruen camera(cctv_ip, username, password, http_port, protocol);
  
     while (true) {
         try {
@@ -79,6 +81,8 @@ int main() {
             std::this_thread::sleep_for(std::chrono::seconds(reconnect_delay));
         }
     }
+
+    curl_global_cleanup();
 
     return 0;
 }

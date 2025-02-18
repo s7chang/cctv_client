@@ -8,7 +8,13 @@
 #include "http_client.h"
 #include "http_exception.h"
 
-bool HttpClient::sendRequest(const std::string& protocol, const std::string& method, const std::string& url, std::string* response) {
+size_t callback(void* contents, size_t size, size_t nmemb, void* userp) {
+    size_t totalSize = size * nmemb;
+    static_cast<std::string*>(userp)->append(static_cast<char*>(contents), totalSize);
+    return totalSize;
+}
+
+bool HttpClient::sendRequest(const std::string& protocol, const std::string& method, const std::string& url, const std::string& username, const std::string& passwd, std::string* response) {
     CURL* curl = curl_easy_init();
     if (!curl) {
         throw std::runtime_error("CURL 초기화 실패");
@@ -17,12 +23,15 @@ bool HttpClient::sendRequest(const std::string& protocol, const std::string& met
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method.c_str());
 
+    // 🔹 ONVIF는 Digest Authentication을 요구하므로 설정
+    if (!username.empty() && !passwd.empty()) {
+        std::string userpwd = username + ":" + passwd;
+        curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
+        curl_easy_setopt(curl, CURLOPT_USERPWD, userpwd.c_str());
+    }
+
     if (response) {
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void* contents, size_t size, size_t nmemb, void* userp) -> size_t {
-            size_t totalSize = size * nmemb;
-            static_cast<std::string*>(userp)->append(static_cast<char*>(contents), totalSize);
-            return totalSize;
-        });
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);
     } else {
         curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
@@ -33,6 +42,8 @@ bool HttpClient::sendRequest(const std::string& protocol, const std::string& met
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // 서버 인증서 검증 비활성화
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L); // 호스트 검증 비활성화
     }
+
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L); // 🔹 디버깅을 위해 상세 로그 출력
 
     CURLcode res = curl_easy_perform(curl);
 

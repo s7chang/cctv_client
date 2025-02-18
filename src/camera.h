@@ -37,12 +37,18 @@ std::string to_string(E_EventAction behavior);
 
 class Camera {
 public:
-    Camera(const std::string& cameraIp, int port = 80, const std::string& protocol = "http") : protocol(protocol), addr(cameraIp + ":" + std::to_string(port)) {}
+    Camera(const std::string& cameraIp, const std::string& username, const std::string& passwd, int port = 80, const std::string& protocol = "http")
+     : protocol(protocol)
+     , addr(cameraIp + ":" + std::to_string(port))
+     , username(username), passwd(passwd) {
+    }
     virtual ~Camera() {}
 
 protected:
     std::string protocol;
     std::string addr;
+    std::string username;
+    std::string passwd;
 
     // 설정
     virtual bool readConfig(const std::string& param, std::string& response) const noexcept(false) = 0;
