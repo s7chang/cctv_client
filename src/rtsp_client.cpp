@@ -26,6 +26,13 @@ int RTSPClient::getPayloadType() const {
 
 // RTSP 이벤트 스트림 시작
 bool RTSPClient::startEventStream(std::function<void(const std::string&)> onMetadataReceived) {
+//     AVDictionary* options = nullptr;
+//     av_dict_set(&options, "allowed_media_types", "application", 0);
+// AVMEDIA_TYPE_DATA;
+//     if (avformat_open_input(&formatContext, rtspUrl.c_str(), nullptr, &options) != 0) {
+//         std::cerr << "Failed to open RTSP metadata stream" << std::endl;
+//         return false;
+//     }
     if (avformat_open_input(&formatContext, rtspUrl.c_str(), nullptr, nullptr) != 0) {
         std::cerr << "Failed to open RTSP stream" << std::endl;
         return false;

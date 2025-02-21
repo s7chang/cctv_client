@@ -60,10 +60,33 @@ int main() {
     }
 
     std::cout << std::endl << std::endl << std::endl;
-
+/*
     // 🔹 2️⃣ ONVIFClient를 사용하여 RTSP 메타데이터 스트림 URI 가져오기
     ONVIFClient onvifClient(protocol, cctv_ip + ":" + std::to_string(http_port), username, password);
-    std::string rtsp_url = onvifClient.getMetadataStreamUri();
+//    std::string rtsp_url = onvifClient.getMetadataStreamUri();
+
+
+
+    // 1️⃣ GetProfiles 호출
+    std::string profileToken = onvifClient.getProfileToken();
+    if (profileToken.empty()) {
+        std::cerr << "Failed to get ProfileToken!" << std::endl;
+        return -1;
+    }
+    std::cout << "Profile Token: " << profileToken << std::endl;
+
+    // 2️⃣ GetStreamUri 호출
+    std::string rtspUri = onvifClient.getStreamUri(profileToken);
+    if (rtspUri.empty()) {
+        std::cerr << "Failed to get RTSP Stream URI!" << std::endl;
+        return -1;
+    }
+
+    // ✅ 결과 출력
+    std::cout << "RTSP Stream URI: " << rtspUri << ", payload_type: " << payload_type << std::endl;
+*/
+/*
+
 
     if (rtsp_url.empty()) {
         std::cerr << "[ERROR] RTSP URI를 가져오지 못했습니다. 종료합니다." << std::endl;
@@ -71,6 +94,8 @@ int main() {
     }
 
     std::cout << "[INFO] ONVIF RTSP 메타데이터 스트림 URI: " << rtsp_url << std::endl;
+*/
+    std::string rtsp_url = "rtsp://admin:4321@192.168.52.185:554/video1s1+audio1";
 
     // 🔹 3️⃣ RTSP 스트림 재연결 루프
     while (true) {
